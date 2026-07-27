@@ -1,0 +1,51 @@
+ AI Usage Declaration:
+
+Project Title: AI Tic-Tac-Toe Game Using Minimax Algorithm with Alpha-Beta Pruning
+
+AI Tools Used:
+
+The following AI tool was used during the development and documentation of this project:
+
+ChatGPT (OpenAI)
+Claude
+
+How AI Was Used:
+
+ChatGPT & Claude was used as an assistant to support the development of the project. Its assistance included:
+
+* Explaining the Minimax Algorithm and Alpha-Beta Pruning.
+* Helping understand the overall project workflow.
+* Assisting in writing the project documentation, including the README file.
+* Assisting in preparing the project report and AI usage declaration.
+* Providing explanations and guidance for debugging and improving code.
+* Claude was used for Frondend (HTML,CSS,JS)
+
+AI was used only as a learning and documentation aid. All generated content was reviewed and modified where necessary before being included in the final submission.
+
+ Sections Generated or Assisted by AI:
+
+The following parts of the project were created or refined with AI assistance:
+
+* README.md documentation
+* Project report formatting and explanations
+* AI Usage Declaration
+* Workflow explanation
+* Code comments and documentation (where applicable)
+* General guidance on implementing and understanding the AI algorithm
+
+
+ Parts Implemented by Me:
+
+The following work was completed by me:
+
+* Implementation and integration of the Tic-Tac-Toe application.
+* Development and testing of the project functionality.
+* Running, verifying, and debugging the project.
+* Organizing the project structure and files.
+* Final review, testing, and submission preparation.
+
+
+Declaration:
+
+I declare that AI tools were used only to assist with learning, understanding concepts, documentation, and improving the presentation of this project. I reviewed all AI-assisted content, ensured its correctness, and take full responsibility for the submitted work.
+

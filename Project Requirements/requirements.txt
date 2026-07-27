@@ -1,0 +1,8 @@
+Tic-Tac-Toe AI Lab: 
+
+This project uses only the Python standard library — no third-party
+packages are required to run the server, the AI engine, or the tests.
+Standard library modules used: argparse, dataclasses, http, json, os,
+pathlib, random, time, typing, unittest.
+Requirement: Python 3.9+ (developed/tested on Python 3.11 and 3.13)
+
