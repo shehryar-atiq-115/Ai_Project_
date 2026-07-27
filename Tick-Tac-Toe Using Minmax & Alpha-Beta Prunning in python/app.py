@@ -1,0 +1,121 @@
+"""Dependency-free web server for the Tic-Tac-Toe AI Lab.
+
+Run:
+    python app.py
+
+Then open:
+    http://127.0.0.1:8000
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from http import HTTPStatus
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from typing import Any
+
+from game_engine import find_best_move, validate_board
+
+
+APP_DIR = Path(__file__).resolve().parent
+
+
+class TicTacToeHandler(SimpleHTTPRequestHandler):
+    """Serve the frontend and the stateless AI endpoint."""
+
+    server_version = "TicTacToeAILab/1.0"
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, directory=str(APP_DIR), **kwargs)
+
+    def _send_json(self, payload: dict, status: HTTPStatus = HTTPStatus.OK) -> None:
+        body = json.dumps(payload).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_GET(self) -> None:  # noqa: N802 - stdlib handler API
+        if self.path == "/api/health":
+            self._send_json({"status": "ok", "service": "Tic-Tac-Toe AI Lab"})
+            return
+        if self.path == "/":
+            self.path = "/index.html"
+        super().do_GET()
+
+    def do_POST(self) -> None:  # noqa: N802 - stdlib handler API
+        if self.path != "/api/ai-move":
+            self._send_json(
+                {"error": "Endpoint not found."}, HTTPStatus.NOT_FOUND
+            )
+            return
+
+        try:
+            content_length = int(self.headers.get("Content-Length", "0"))
+            if content_length <= 0 or content_length > 10_000:
+                raise ValueError("Request body is missing or too large.")
+
+            payload = json.loads(self.rfile.read(content_length))
+            board = validate_board(payload.get("board"), payload.get("aiSymbol"))
+            difficulty = payload.get("difficulty", "hard")
+            result = find_best_move(board, payload["aiSymbol"], difficulty)
+            self._send_json(result)
+        except (ValueError, TypeError, KeyError, json.JSONDecodeError) as error:
+            self._send_json({"error": str(error)}, HTTPStatus.BAD_REQUEST)
+        except Exception:
+            self._send_json(
+                {"error": "The AI could not evaluate this position."},
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+            )
+
+    def log_message(self, message_format: str, *args: Any) -> None:
+        print(f"[web] {self.address_string()} - {message_format % args}")
+
+
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run the Tic-Tac-Toe AI Lab.")
+    parser.add_argument(
+        "--host",
+        default=os.environ.get("TICTACTOE_HOST", "127.0.0.1"),
+        help="Host interface (default: 127.0.0.1)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.environ.get("TICTACTOE_PORT", "8000")),
+        help="Port number (default: 8000)",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    options = parse_arguments()
+    try:
+        server = ThreadingHTTPServer((options.host, options.port), TicTacToeHandler)
+    except OSError as error:
+        raise SystemExit(
+            f"Could not start the server on port {options.port}: {error}\n"
+            f"Try another port, for example: python app.py --port {options.port + 1}"
+        ) from error
+    display_host = "localhost" if options.host in ("127.0.0.1", "0.0.0.0") else options.host
+    print()
+    print("  TIC-TAC-TOE AI LAB")
+    print(f"  Running at http://{display_host}:{options.port}")
+    print("  Press Ctrl+C to stop.")
+    print()
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n  Server stopped.")
+    finally:
+        server.server_close()
+
+
+if __name__ == "__main__":
+    main()
